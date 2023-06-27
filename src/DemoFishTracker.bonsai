@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.6.3"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:bz="clr-namespace:BonZeb;assembly=BonZeb"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:LoadImage">
+          <cv:FileName>C:\Users\teachinglab\Desktop\dmd\ss10199.tif</cv:FileName>
+          <cv:Mode>Unchanged</cv:Mode>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="AsyncSubject">
+        <Name>Image</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Image</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Timer">
+          <rx:DueTime>PT0S</rx:DueTime>
+          <rx:Period>PT0.1S</rx:Period>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:WithLatestFrom" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Item2</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:Grayscale" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:ConvertScale">
+          <dsp:Depth xsi:nil="true" />
+          <dsp:Scale>3</dsp:Scale>
+          <dsp:Shift>0</dsp:Shift>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="bz:CreatePoint2f">
+          <bz:X>150</bz:X>
+          <bz:Y>150</bz:Y>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="bz:CalculateTailPoints">
+          <bz:DistTailBase>50</bz:DistTailBase>
+          <bz:HeadingDirection>0</bz:HeadingDirection>
+          <bz:NumTailSegments>9</bz:NumTailSegments>
+          <bz:DistTailPoints>32</bz:DistTailPoints>
+          <bz:RangeTailPointAngles>90</bz:RangeTailPointAngles>
+          <bz:PixelSearchMethod>Brightest</bz:PixelSearchMethod>
+          <bz:OffsetX>0</bz:OffsetX>
+          <bz:OffsetY>0</bz:OffsetY>
+          <bz:TailPointCalculationMethod>CenterOfMass</bz:TailPointCalculationMethod>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="bz:CalculateTailCurvature" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="bz:DetectTailBeatKinematics">
+          <bz:BoutThreshold>10</bz:BoutThreshold>
+          <bz:FrameRate>30</bz:FrameRate>
+          <bz:FrameWindow>5</bz:FrameWindow>
+          <bz:PeakThreshold xsi:nil="true" />
+          <bz:WithinBoutThreshold xsi:nil="true" />
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="3" To="5" Label="Source2" />
+      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="8" To="10" Label="Source1" />
+      <Edge From="9" To="10" Label="Source2" />
+      <Edge From="10" To="11" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="12" To="13" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
