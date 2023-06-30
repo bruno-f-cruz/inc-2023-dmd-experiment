@@ -3,73 +3,30 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:spk="clr-namespace:Bonsai.Spinnaker;assembly=Bonsai.Spinnaker"
                  xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
-                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
-                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
                  xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
-                 xmlns:sys="clr-namespace:System;assembly=mscorlib"
-                 xmlns:bv="clr-namespace:BonVision;assembly=BonVision"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:p1="clr-namespace:;assembly=Extensions"
+                 xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
                  xmlns:drw="clr-namespace:Bonsai.Vision.Drawing;assembly=Bonsai.Vision"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="spk:SpinnakerCapture">
-            <spk:Index xsi:nil="true" />
-            <spk:SerialNumber>16279532</spk:SerialNumber>
-            <spk:ColorProcessing>Default</spk:ColorProcessing>
-          </Combinator>
-        </Builder>
-      </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="gl:DelaySubscription">
-            <gl:DueTime>PT1S</gl:DueTime>
-          </Combinator>
-        </Builder>
-      </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="MemberSelector">
-          <Selector>Image</Selector>
-        </Builder>
-      </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="cv:LoadImage">
-          <cv:FileName>C:\Users\neurogears\Documents\git\bruno-f-cruz\inc-2023-dmd-experiment\assets\data\ss10199.tif</cv:FileName>
-          <cv:Mode>Unchanged</cv:Mode>
+        <Combinator xsi:type="spk:SpinnakerCapture">
+          <spk:Index xsi:nil="true" />
+          <spk:SerialNumber>16279532</spk:SerialNumber>
+          <spk:ColorProcessing>Default</spk:ColorProcessing>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="cv:Resize">
-          <cv:Size>
-            <cv:Width>2048</cv:Width>
-            <cv:Height>1536</cv:Height>
-          </cv:Size>
-          <cv:Interpolation>Linear</cv:Interpolation>
+        <Combinator xsi:type="gl:DelaySubscription">
+          <gl:DueTime>PT1S</gl:DueTime>
         </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="cv:Grayscale" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:ConvertScale">
-          <dsp:Depth>U16</dsp:Depth>
-          <dsp:Scale>1</dsp:Scale>
-          <dsp:Shift>0</dsp:Shift>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:Timer">
-          <gl:DueTime>PT0S</gl:DueTime>
-          <gl:Period>PT0.05S</gl:Period>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:WithLatestFrom" />
       </Expression>
       <Expression xsi:type="MemberSelector">
-        <Selector>Item2</Selector>
+        <Selector>Image</Selector>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>ImageData</Name>
@@ -165,63 +122,45 @@
               </Combinator>
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.BonVisionResources.bonsai" />
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:ShaderResources">
-                <gl:Shaders>
-                  <gl:ShaderConfiguration xsi:type="gl:Material">
-                    <gl:Name>DmdCalibration</gl:Name>
-                    <gl:RenderState />
-                    <gl:ShaderUniforms />
-                    <gl:BufferBindings>
-                      <gl:BufferBinding xsi:type="gl:TextureBinding">
-                        <gl:Name>tex</gl:Name>
-                        <gl:TextureSlot>Texture0</gl:TextureSlot>
-                        <gl:TextureName>Stimuli</gl:TextureName>
-                        <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                      </gl:BufferBinding>
-                      <gl:BufferBinding xsi:type="gl:TextureBinding">
-                        <gl:Name>lut_X</gl:Name>
-                        <gl:TextureSlot>Texture1</gl:TextureSlot>
-                        <gl:TextureName>CalibX</gl:TextureName>
-                        <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                      </gl:BufferBinding>
-                      <gl:BufferBinding xsi:type="gl:TextureBinding">
-                        <gl:Name>lut_Y</gl:Name>
-                        <gl:TextureSlot>Texture2</gl:TextureSlot>
-                        <gl:TextureName>CalibY</gl:TextureName>
-                        <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                      </gl:BufferBinding>
-                    </gl:BufferBindings>
-                    <gl:FramebufferAttachments />
-                    <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
-                    <gl:FragmentShader>Shaders\SampleLut.frag</gl:FragmentShader>
-                  </gl:ShaderConfiguration>
-                </gl:Shaders>
-              </Combinator>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="Combinator">
+                <Combinator xsi:type="gl:ShaderResources">
+                  <gl:Shaders>
+                    <gl:ShaderConfiguration xsi:type="gl:Material">
+                      <gl:Name>DmdCalibration</gl:Name>
+                      <gl:RenderState />
+                      <gl:ShaderUniforms />
+                      <gl:BufferBindings>
+                        <gl:BufferBinding xsi:type="gl:TextureBinding">
+                          <gl:Name>tex</gl:Name>
+                          <gl:TextureSlot>Texture0</gl:TextureSlot>
+                          <gl:TextureName>Stimuli</gl:TextureName>
+                          <gl:TextureTarget>Texture2D</gl:TextureTarget>
+                        </gl:BufferBinding>
+                        <gl:BufferBinding xsi:type="gl:TextureBinding">
+                          <gl:Name>lut_X</gl:Name>
+                          <gl:TextureSlot>Texture1</gl:TextureSlot>
+                          <gl:TextureName>CalibX</gl:TextureName>
+                          <gl:TextureTarget>Texture2D</gl:TextureTarget>
+                        </gl:BufferBinding>
+                        <gl:BufferBinding xsi:type="gl:TextureBinding">
+                          <gl:Name>lut_Y</gl:Name>
+                          <gl:TextureSlot>Texture2</gl:TextureSlot>
+                          <gl:TextureName>CalibY</gl:TextureName>
+                          <gl:TextureTarget>Texture2D</gl:TextureTarget>
+                        </gl:BufferBinding>
+                      </gl:BufferBindings>
+                      <gl:FramebufferAttachments />
+                      <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
+                      <gl:FragmentShader>Shaders\SampleLut.frag</gl:FragmentShader>
+                    </gl:ShaderConfiguration>
+                  </gl:Shaders>
+                </Combinator>
+              </Builder>
             </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="gl:TextureResources">
                 <gl:Textures>
-                  <gl:TextureConfiguration xsi:type="gl:Texture2D">
-                    <gl:Name>CalibX</gl:Name>
-                    <gl:Width xsi:nil="true" />
-                    <gl:Height xsi:nil="true" />
-                    <gl:InternalFormat>R16ui</gl:InternalFormat>
-                    <gl:WrapS>Repeat</gl:WrapS>
-                    <gl:WrapT>Repeat</gl:WrapT>
-                    <gl:MinFilter>Linear</gl:MinFilter>
-                    <gl:MagFilter>Linear</gl:MagFilter>
-                  </gl:TextureConfiguration>
-                  <gl:TextureConfiguration xsi:type="gl:Texture2D">
-                    <gl:Name>CalibY</gl:Name>
-                    <gl:Width xsi:nil="true" />
-                    <gl:Height xsi:nil="true" />
-                    <gl:InternalFormat>R16ui</gl:InternalFormat>
-                    <gl:WrapS>Repeat</gl:WrapS>
-                    <gl:WrapT>Repeat</gl:WrapT>
-                    <gl:MinFilter>Linear</gl:MinFilter>
-                    <gl:MagFilter>Linear</gl:MagFilter>
-                  </gl:TextureConfiguration>
                   <gl:TextureConfiguration xsi:type="gl:Texture2D">
                     <gl:Name>Stimuli</gl:Name>
                     <gl:Width xsi:nil="true" />
@@ -241,106 +180,36 @@
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="gl:RenderFrame" />
             </Expression>
-            <Expression xsi:type="Disable">
-              <Builder xsi:type="SubscribeSubject">
-                <Name>ProjectorSize</Name>
-              </Builder>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>ProjectorSize</Name>
             </Expression>
-            <Expression xsi:type="Disable">
-              <Builder xsi:type="PropertyMapping">
-                <PropertyMappings>
-                  <Property Name="Right" Selector="Item1" />
-                  <Property Name="Top" Selector="Item2" />
-                </PropertyMappings>
-              </Builder>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Item1</Selector>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Right" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>ProjectorSize</Name>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Item2</Selector>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Top" />
+              </PropertyMappings>
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.OrthographicView.bonsai">
               <Left>0</Left>
-              <Right>1</Right>
+              <Right>1920</Right>
               <Bottom>0</Bottom>
-              <Top>1</Top>
+              <Top>1080</Top>
             </Expression>
             <Expression xsi:type="rx:PublishSubject">
               <Name>Draw</Name>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="StringProperty">
-                <Value>DmdCalibration</Value>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="rx:Take">
-                <rx:Count>1</rx:Count>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="rx:AsyncSubject">
-              <Name>ShaderName</Name>
-            </Expression>
-            <Expression xsi:type="Disable">
-              <Builder xsi:type="Combinator">
-                <Combinator xsi:type="gl:Timer">
-                  <gl:DueTime>PT0S</gl:DueTime>
-                  <gl:Period>PT0.1S</gl:Period>
-                </Combinator>
-              </Builder>
-            </Expression>
-            <Expression xsi:type="Disable">
-              <Builder xsi:type="Combinator">
-                <Combinator xsi:type="gl:CreateVector2">
-                  <gl:X>1</gl:X>
-                  <gl:Y>1</gl:Y>
-                </Combinator>
-              </Builder>
-            </Expression>
-            <Expression xsi:type="Disable">
-              <Builder xsi:type="Combinator">
-                <Combinator xsi:type="gl:UpdateUniform">
-                  <gl:UniformName>resolution</gl:UniformName>
-                  <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                </Combinator>
-              </Builder>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:Timer">
-                <gl:DueTime>PT0S</gl:DueTime>
-                <gl:Period>PT1S</gl:Period>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Mod">
-              <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int64">
-                <Value>4</Value>
-              </Operand>
-            </Expression>
-            <Expression xsi:type="InputMapping">
-              <PropertyMappings>
-                <Property Name="Value" Selector="it" />
-              </PropertyMappings>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="IntProperty">
-                <Value>1</Value>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:UpdateUniform">
-                <gl:UniformName>mode</gl:UniformName>
-                <gl:ShaderName>DmdCalibration</gl:ShaderName>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Disable">
-              <Builder xsi:type="Combinator">
-                <Combinator xsi:type="IntProperty">
-                  <Value>0</Value>
-                </Combinator>
-              </Builder>
-            </Expression>
-            <Expression xsi:type="Disable">
-              <Builder xsi:type="Combinator">
-                <Combinator xsi:type="gl:UpdateUniform">
-                  <gl:UniformName>mode</gl:UniformName>
-                  <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                </Combinator>
-              </Builder>
             </Expression>
           </Nodes>
           <Edges>
@@ -348,20 +217,14 @@
             <Edge From="1" To="2" Label="Source1" />
             <Edge From="2" To="3" Label="Source1" />
             <Edge From="3" To="4" Label="Source1" />
-            <Edge From="5" To="8" Label="Source1" />
+            <Edge From="5" To="12" Label="Source1" />
             <Edge From="6" To="7" Label="Source1" />
-            <Edge From="7" To="8" Label="Source2" />
-            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="12" Label="Source2" />
+            <Edge From="9" To="10" Label="Source1" />
             <Edge From="10" To="11" Label="Source1" />
-            <Edge From="11" To="12" Label="Source1" />
-            <Edge From="13" To="14" Label="Source1" />
-            <Edge From="14" To="15" Label="Source1" />
-            <Edge From="16" To="17" Label="Source1" />
-            <Edge From="17" To="18" Label="Source1" />
-            <Edge From="18" To="19" Label="Source1" />
-            <Edge From="19" To="20" Label="Source1" />
-            <Edge From="20" To="21" Label="Source1" />
-            <Edge From="21" To="22" Label="Source1" />
+            <Edge From="11" To="12" Label="Source3" />
+            <Edge From="12" To="13" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
@@ -371,7 +234,7 @@
           <Nodes>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="dsp:MatrixReader">
-                <dsp:Path>C:\Users\neurogears\Documents\git\bruno-f-cruz\inc-2023-dmd-experiment\assets\data\Calibration\XCalibration.bin</dsp:Path>
+                <dsp:Path>C:\Users\teachinglab\Desktop\inc-2023-dmd-experiment\assets\data\Calibration\XCalibration.bin</dsp:Path>
                 <dsp:Offset>0</dsp:Offset>
                 <dsp:SampleRate>0</dsp:SampleRate>
                 <dsp:ChannelCount>1</dsp:ChannelCount>
@@ -398,44 +261,13 @@
             </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="cv:Grayscale" />
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:UpdateTexture">
-                <gl:TextureName>CalibX</gl:TextureName>
-                <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                <gl:InternalFormat>R16ui</gl:InternalFormat>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>ShaderName</Name>
-            </Expression>
-            <Expression xsi:type="PropertyMapping">
-              <PropertyMappings>
-                <Property Name="ShaderName" />
-              </PropertyMappings>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:BindTexture">
-                <gl:TextureSlot>Texture1</gl:TextureSlot>
-                <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                <gl:TextureName>CalibX</gl:TextureName>
-                <gl:TextureTarget>Texture2D</gl:TextureTarget>
-              </Combinator>
             </Expression>
             <Expression xsi:type="rx:AsyncSubject">
               <Name>CalibrationX</Name>
             </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>ShaderName</Name>
-            </Expression>
-            <Expression xsi:type="PropertyMapping">
-              <PropertyMappings>
-                <Property Name="ShaderName" />
-              </PropertyMappings>
-            </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="dsp:MatrixReader">
-                <dsp:Path>C:\Users\neurogears\Documents\git\bruno-f-cruz\inc-2023-dmd-experiment\assets\data\Calibration\YCalibration.bin</dsp:Path>
+                <dsp:Path>C:\Users\teachinglab\Desktop\inc-2023-dmd-experiment\assets\data\Calibration\YCalibration.bin</dsp:Path>
                 <dsp:Offset>0</dsp:Offset>
                 <dsp:SampleRate>0</dsp:SampleRate>
                 <dsp:ChannelCount>1</dsp:ChannelCount>
@@ -463,23 +295,52 @@
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="cv:Grayscale" />
             </Expression>
+            <Expression xsi:type="rx:AsyncSubject">
+              <Name>CalibrationY</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>CalibrationX</Name>
+            </Expression>
             <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:UpdateTexture">
-                <gl:TextureName>CalibY</gl:TextureName>
-                <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                <gl:InternalFormat>R16ui</gl:InternalFormat>
+              <Combinator xsi:type="cv:Flip">
+                <cv:Mode>Both</cv:Mode>
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:BindTexture">
-                <gl:TextureSlot>Texture2</gl:TextureSlot>
-                <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                <gl:TextureName>CalibY</gl:TextureName>
-                <gl:TextureTarget>Texture2D</gl:TextureTarget>
+              <Combinator xsi:type="dsp:ConvertScale">
+                <dsp:Depth>F32</dsp:Depth>
+                <dsp:Scale>1</dsp:Scale>
+                <dsp:Shift>0</dsp:Shift>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>CalibrationY</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="cv:Flip">
+                <cv:Mode>Both</cv:Mode>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:ConvertScale">
+                <dsp:Depth>F32</dsp:Depth>
+                <dsp:Scale>1</dsp:Scale>
+                <dsp:Shift>0</dsp:Shift>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p1:GetCalibrationMap" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Take">
+                <rx:Count>1</rx:Count>
               </Combinator>
             </Expression>
             <Expression xsi:type="rx:AsyncSubject">
-              <Name>CalibrationY</Name>
+              <Name>CalibrationMap</Name>
             </Expression>
           </Nodes>
           <Edges>
@@ -488,289 +349,68 @@
             <Edge From="2" To="3" Label="Source1" />
             <Edge From="3" To="4" Label="Source1" />
             <Edge From="4" To="5" Label="Source1" />
-            <Edge From="5" To="8" Label="Source1" />
             <Edge From="6" To="7" Label="Source1" />
-            <Edge From="7" To="8" Label="Source2" />
+            <Edge From="7" To="8" Label="Source1" />
             <Edge From="8" To="9" Label="Source1" />
-            <Edge From="10" To="11" Label="Source1" />
-            <Edge From="11" To="18" Label="Source2" />
-            <Edge From="12" To="13" Label="Source1" />
-            <Edge From="13" To="14" Label="Source1" />
-            <Edge From="14" To="15" Label="Source1" />
-            <Edge From="15" To="16" Label="Source1" />
-            <Edge From="16" To="17" Label="Source1" />
-            <Edge From="17" To="18" Label="Source1" />
-            <Edge From="18" To="19" Label="Source1" />
-          </Edges>
-        </Workflow>
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>ImageData</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:ConvertScale">
-          <dsp:Depth>U8</dsp:Depth>
-          <dsp:Scale>0.00390625</dsp:Scale>
-          <dsp:Shift>0</dsp:Shift>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="cv:ConvertColor">
-          <cv:Conversion>Gray2Bgr</cv:Conversion>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="GroupWorkflow">
-        <Name>PlanA</Name>
-        <Workflow>
-          <Nodes>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>Draw</Name>
-            </Expression>
-            <Expression xsi:type="ExternalizedMapping">
-              <Property Name="Value" DisplayName="Angle" Description="The angle of the image." />
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="bv:AngleProperty">
-                <bv:Value>0</bv:Value>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="PropertyMapping">
-              <PropertyMappings>
-                <Property Name="Angle" />
-              </PropertyMappings>
-            </Expression>
-            <Expression xsi:type="ExternalizedMapping">
-              <Property Name="ExtentX" />
-              <Property Name="ExtentY" />
-              <Property Name="LocationX" />
-              <Property Name="LocationY" />
-              <Property Name="Layer" />
-            </Expression>
-            <Expression xsi:type="GroupWorkflow">
-              <Name>Transform</Name>
-              <Workflow>
-                <Nodes>
-                  <Expression xsi:type="WorkflowInput">
-                    <Name>Source1</Name>
-                  </Expression>
-                  <Expression xsi:type="ExternalizedMapping">
-                    <Property Name="X" DisplayName="LocationX" />
-                    <Property Name="Y" DisplayName="LocationY" />
-                    <Property Name="Z" DisplayName="Layer" Description="The optional drawing overlay priority. Lower numbers appear below higher numbers." />
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="gl:Translate">
-                      <gl:Order>Prepend</gl:Order>
-                      <gl:X>0.5</gl:X>
-                      <gl:Y>0.5</gl:Y>
-                      <gl:Z>0</gl:Z>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="ExternalizedMapping">
-                    <Property Name="X" DisplayName="ExtentX" Description="The size of the image along the x-axis." />
-                    <Property Name="Y" DisplayName="ExtentY" Description="The size of the image along the x-axis." />
-                  </Expression>
-                  <Expression xsi:type="ExternalizedMapping">
-                    <Property Name="Angle" />
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="gl:RotateZ">
-                      <gl:Order>Prepend</gl:Order>
-                      <gl:Angle>0</gl:Angle>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="gl:Scale">
-                      <gl:Order>Prepend</gl:Order>
-                      <gl:X>1</gl:X>
-                      <gl:Y>1</gl:Y>
-                      <gl:Z>1</gl:Z>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>ShaderName</Name>
-                  </Expression>
-                  <Expression xsi:type="PropertyMapping">
-                    <PropertyMappings>
-                      <Property Name="ShaderName" />
-                    </PropertyMappings>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="gl:UpdateUniform">
-                      <gl:UniformName>transform</gl:UniformName>
-                      <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="WorkflowOutput" />
-                </Nodes>
-                <Edges>
-                  <Edge From="0" To="2" Label="Source1" />
-                  <Edge From="1" To="2" Label="Source2" />
-                  <Edge From="2" To="5" Label="Source1" />
-                  <Edge From="3" To="6" Label="Source2" />
-                  <Edge From="4" To="5" Label="Source2" />
-                  <Edge From="5" To="6" Label="Source1" />
-                  <Edge From="6" To="9" Label="Source1" />
-                  <Edge From="7" To="8" Label="Source1" />
-                  <Edge From="8" To="9" Label="Source2" />
-                  <Edge From="9" To="10" Label="Source1" />
-                </Edges>
-              </Workflow>
-            </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>ShaderName</Name>
-            </Expression>
-            <Expression xsi:type="PropertyMapping">
-              <PropertyMappings>
-                <Property Name="ShaderName" />
-              </PropertyMappings>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:DrawMesh">
-                <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                <gl:MeshName>Quad</gl:MeshName>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>ImageData</Name>
-            </Expression>
-            <Expression xsi:type="MemberSelector">
-              <Selector>Size</Selector>
-            </Expression>
-            <Expression xsi:type="PropertyMapping">
-              <PropertyMappings>
-                <Property Name="Size" />
-              </PropertyMappings>
-            </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>ImageData</Name>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="drw:CreateCanvas">
-                <drw:Size>
-                  <drw:Width>2048</drw:Width>
-                  <drw:Height>1536</drw:Height>
-                </drw:Size>
-                <drw:Depth>U8</drw:Depth>
-                <drw:Channels>3</drw:Channels>
-                <drw:Color>
-                  <drw:Val0>128</drw:Val0>
-                  <drw:Val1>128</drw:Val1>
-                  <drw:Val2>128</drw:Val2>
-                  <drw:Val3>255</drw:Val3>
-                </drw:Color>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="drw:Rectangle">
-                <drw:Origin>
-                  <drw:X>860</drw:X>
-                  <drw:Y>480</drw:Y>
-                </drw:Origin>
-                <drw:Size>
-                  <drw:Width>200</drw:Width>
-                  <drw:Height>600</drw:Height>
-                </drw:Size>
-                <drw:Color>
-                  <drw:Val0>255</drw:Val0>
-                  <drw:Val1>255</drw:Val1>
-                  <drw:Val2>255</drw:Val2>
-                  <drw:Val3>255</drw:Val3>
-                </drw:Color>
-                <drw:Thickness>-1</drw:Thickness>
-                <drw:LineType>Connected8</drw:LineType>
-                <drw:Shift>0</drw:Shift>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="drw:Rectangle">
-                <drw:Origin>
-                  <drw:X>400</drw:X>
-                  <drw:Y>480</drw:Y>
-                </drw:Origin>
-                <drw:Size>
-                  <drw:Width>200</drw:Width>
-                  <drw:Height>600</drw:Height>
-                </drw:Size>
-                <drw:Color>
-                  <drw:Val0>255</drw:Val0>
-                  <drw:Val1>255</drw:Val1>
-                  <drw:Val2>255</drw:Val2>
-                  <drw:Val3>255</drw:Val3>
-                </drw:Color>
-                <drw:Thickness>-1</drw:Thickness>
-                <drw:LineType>Connected8</drw:LineType>
-                <drw:Shift>0</drw:Shift>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="drw:Rectangle">
-                <drw:Origin>
-                  <drw:X>1200</drw:X>
-                  <drw:Y>480</drw:Y>
-                </drw:Origin>
-                <drw:Size>
-                  <drw:Width>200</drw:Width>
-                  <drw:Height>600</drw:Height>
-                </drw:Size>
-                <drw:Color>
-                  <drw:Val0>255</drw:Val0>
-                  <drw:Val1>255</drw:Val1>
-                  <drw:Val2>255</drw:Val2>
-                  <drw:Val3>255</drw:Val3>
-                </drw:Color>
-                <drw:Thickness>-1</drw:Thickness>
-                <drw:LineType>Connected8</drw:LineType>
-                <drw:Shift>0</drw:Shift>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="drw:DrawCanvas" />
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:SampleOnUpdateFrame" />
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:UpdateTexture">
-                <gl:TextureName>Stimuli</gl:TextureName>
-                <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                <gl:InternalFormat>Rgba</gl:InternalFormat>
-              </Combinator>
-            </Expression>
-          </Nodes>
-          <Edges>
-            <Edge From="0" To="5" Label="Source1" />
-            <Edge From="1" To="2" Label="Source1" />
-            <Edge From="2" To="3" Label="Source1" />
-            <Edge From="3" To="5" Label="Source3" />
-            <Edge From="4" To="5" Label="Source2" />
-            <Edge From="5" To="8" Label="Source1" />
-            <Edge From="6" To="7" Label="Source1" />
-            <Edge From="7" To="8" Label="Source2" />
             <Edge From="9" To="10" Label="Source1" />
             <Edge From="10" To="11" Label="Source1" />
-            <Edge From="11" To="13" Label="Source2" />
             <Edge From="12" To="13" Label="Source1" />
             <Edge From="13" To="14" Label="Source1" />
-            <Edge From="14" To="15" Label="Source1" />
+            <Edge From="14" To="18" Label="Source1" />
             <Edge From="15" To="16" Label="Source1" />
             <Edge From="16" To="17" Label="Source1" />
-            <Edge From="17" To="18" Label="Source1" />
+            <Edge From="17" To="18" Label="Source2" />
             <Edge From="18" To="19" Label="Source1" />
+            <Edge From="19" To="20" Label="Source1" />
+            <Edge From="20" To="21" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="GroupWorkflow">
-          <Name>PlanB</Name>
+          <Name>ShowStim</Name>
           <Workflow>
             <Nodes>
               <Expression xsi:type="SubscribeSubject">
                 <Name>Draw</Name>
               </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>ProjectorSize</Name>
+              </Expression>
+              <Expression xsi:type="MemberSelector">
+                <Selector>Item1</Selector>
+              </Expression>
+              <Expression xsi:type="PropertyMapping">
+                <PropertyMappings>
+                  <Property Name="ExtentX" />
+                </PropertyMappings>
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>ProjectorSize</Name>
+              </Expression>
+              <Expression xsi:type="MemberSelector">
+                <Selector>Item2</Selector>
+              </Expression>
+              <Expression xsi:type="PropertyMapping">
+                <PropertyMappings>
+                  <Property Name="ExtentY" />
+                </PropertyMappings>
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>ProjectorSize</Name>
+              </Expression>
+              <Expression xsi:type="scr:ExpressionTransform">
+                <scr:Expression>new(Item1 / 2.0 as CenterX, Item2/2.0 as CenterY) </scr:Expression>
+              </Expression>
+              <Expression xsi:type="PropertyMapping">
+                <PropertyMappings>
+                  <Property Name="LocationX" Selector="CenterX" />
+                  <Property Name="LocationY" Selector="CenterY" />
+                </PropertyMappings>
+              </Expression>
               <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawImage.bonsai">
                 <Angle>180</Angle>
-                <TextureName>Image</TextureName>
+                <TextureName>Stimuli</TextureName>
                 <ExtentX>1920</ExtentX>
                 <ExtentY>1080</ExtentY>
                 <LocationX>960</LocationX>
@@ -781,41 +421,192 @@
                 <ShiftX>0</ShiftX>
                 <ShiftY>0</ShiftY>
               </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>ImageData</Name>
+              </Expression>
+              <Expression xsi:type="MemberSelector">
+                <Selector>Size</Selector>
+              </Expression>
+              <Expression xsi:type="PropertyMapping">
+                <PropertyMappings>
+                  <Property Name="Size" />
+                </PropertyMappings>
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>ImageData</Name>
+              </Expression>
               <Expression xsi:type="Combinator">
-                <Combinator xsi:type="cv:LoadImage">
-                  <cv:FileName>C:\Users\teachinglab\Desktop\inc-2023-dmd-experiment\assets\data\Calibration\dmd_canvas.png</cv:FileName>
-                  <cv:Mode>Unchanged</cv:Mode>
+                <Combinator xsi:type="drw:CreateCanvas">
+                  <drw:Size>
+                    <drw:Width>2048</drw:Width>
+                    <drw:Height>1536</drw:Height>
+                  </drw:Size>
+                  <drw:Depth>U8</drw:Depth>
+                  <drw:Channels>3</drw:Channels>
+                  <drw:Color>
+                    <drw:Val0>128</drw:Val0>
+                    <drw:Val1>128</drw:Val1>
+                    <drw:Val2>128</drw:Val2>
+                    <drw:Val3>255</drw:Val3>
+                  </drw:Color>
                 </Combinator>
               </Expression>
               <Expression xsi:type="Combinator">
+                <Combinator xsi:type="drw:Rectangle">
+                  <drw:Origin>
+                    <drw:X>860</drw:X>
+                    <drw:Y>600</drw:Y>
+                  </drw:Origin>
+                  <drw:Size>
+                    <drw:Width>200</drw:Width>
+                    <drw:Height>600</drw:Height>
+                  </drw:Size>
+                  <drw:Color>
+                    <drw:Val0>255</drw:Val0>
+                    <drw:Val1>255</drw:Val1>
+                    <drw:Val2>255</drw:Val2>
+                    <drw:Val3>255</drw:Val3>
+                  </drw:Color>
+                  <drw:Thickness>-1</drw:Thickness>
+                  <drw:LineType>Connected8</drw:LineType>
+                  <drw:Shift>0</drw:Shift>
+                </Combinator>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="drw:Rectangle">
+                  <drw:Origin>
+                    <drw:X>400</drw:X>
+                    <drw:Y>400</drw:Y>
+                  </drw:Origin>
+                  <drw:Size>
+                    <drw:Width>200</drw:Width>
+                    <drw:Height>600</drw:Height>
+                  </drw:Size>
+                  <drw:Color>
+                    <drw:Val0>0</drw:Val0>
+                    <drw:Val1>255</drw:Val1>
+                    <drw:Val2>255</drw:Val2>
+                    <drw:Val3>255</drw:Val3>
+                  </drw:Color>
+                  <drw:Thickness>-1</drw:Thickness>
+                  <drw:LineType>Connected8</drw:LineType>
+                  <drw:Shift>0</drw:Shift>
+                </Combinator>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="drw:Rectangle">
+                  <drw:Origin>
+                    <drw:X>1200</drw:X>
+                    <drw:Y>400</drw:Y>
+                  </drw:Origin>
+                  <drw:Size>
+                    <drw:Width>200</drw:Width>
+                    <drw:Height>600</drw:Height>
+                  </drw:Size>
+                  <drw:Color>
+                    <drw:Val0>255</drw:Val0>
+                    <drw:Val1>255</drw:Val1>
+                    <drw:Val2>255</drw:Val2>
+                    <drw:Val3>255</drw:Val3>
+                  </drw:Color>
+                  <drw:Thickness>-1</drw:Thickness>
+                  <drw:LineType>Connected8</drw:LineType>
+                  <drw:Shift>0</drw:Shift>
+                </Combinator>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="drw:DrawCanvas" />
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>CalibrationMap</Name>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="rx:WithLatestFrom" />
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="p1:CorrectDmdProjection">
+                  <p1:FillValue>
+                    <p1:Val0>0</p1:Val0>
+                    <p1:Val1>0</p1:Val1>
+                    <p1:Val2>0</p1:Val2>
+                    <p1:Val3>255</p1:Val3>
+                  </p1:FillValue>
+                </Combinator>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="gl:SampleOnUpdateFrame" />
+              </Expression>
+              <Expression xsi:type="Combinator">
                 <Combinator xsi:type="gl:UpdateTexture">
-                  <gl:TextureName>Image</gl:TextureName>
+                  <gl:TextureName>Stimuli</gl:TextureName>
                   <gl:TextureTarget>Texture2D</gl:TextureTarget>
                   <gl:InternalFormat>Rgba</gl:InternalFormat>
                 </Combinator>
               </Expression>
             </Nodes>
             <Edges>
-              <Edge From="0" To="1" Label="Source1" />
+              <Edge From="0" To="10" Label="Source1" />
+              <Edge From="1" To="2" Label="Source1" />
               <Edge From="2" To="3" Label="Source1" />
+              <Edge From="3" To="10" Label="Source2" />
+              <Edge From="4" To="5" Label="Source1" />
+              <Edge From="5" To="6" Label="Source1" />
+              <Edge From="6" To="10" Label="Source3" />
+              <Edge From="7" To="8" Label="Source1" />
+              <Edge From="8" To="9" Label="Source1" />
+              <Edge From="9" To="10" Label="Source4" />
+              <Edge From="11" To="12" Label="Source1" />
+              <Edge From="12" To="13" Label="Source1" />
+              <Edge From="13" To="15" Label="Source2" />
+              <Edge From="14" To="15" Label="Source1" />
+              <Edge From="15" To="16" Label="Source1" />
+              <Edge From="16" To="17" Label="Source1" />
+              <Edge From="17" To="18" Label="Source1" />
+              <Edge From="18" To="19" Label="Source1" />
+              <Edge From="19" To="21" Label="Source1" />
+              <Edge From="20" To="21" Label="Source2" />
+              <Edge From="21" To="22" Label="Source1" />
+              <Edge From="22" To="23" Label="Source1" />
+              <Edge From="23" To="24" Label="Source1" />
             </Edges>
           </Workflow>
         </Builder>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Draw</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>ProjectorSize</Name>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(Item1 / 2.0 as CenterX, Item2/2.0 as CenterY) </scr:Expression>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="LocationX" Selector="CenterX" />
+          <Property Name="LocationY" Selector="CenterY" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawCheckerboard.bonsai">
+        <NumberColumns>10</NumberColumns>
+        <NumberRows>10</NumberRows>
+        <Phase>0</Phase>
+        <ExtentX>1920</ExtentX>
+        <ExtentY>1080</ExtentY>
+        <LocationX>960</LocationX>
+        <LocationY>540</LocationY>
+        <Layer>0</Layer>
+        <Angle>0</Angle>
       </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
       <Edge From="1" To="2" Label="Source1" />
-      <Edge From="2" To="10" Label="Source1" />
-      <Edge From="3" To="4" Label="Source1" />
-      <Edge From="4" To="5" Label="Source1" />
-      <Edge From="5" To="6" Label="Source1" />
-      <Edge From="6" To="8" Label="Source2" />
-      <Edge From="7" To="8" Label="Source1" />
-      <Edge From="8" To="9" Label="Source1" />
-      <Edge From="9" To="10" Label="Source2" />
-      <Edge From="14" To="15" Label="Source1" />
-      <Edge From="15" To="16" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="8" To="12" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
+      <Edge From="11" To="12" Label="Source2" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
