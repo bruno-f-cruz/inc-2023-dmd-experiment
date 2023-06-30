@@ -3,10 +3,11 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:spk="clr-namespace:Bonsai.Spinnaker;assembly=Bonsai.Spinnaker"
                  xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
                  xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
-                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
-                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:sys="clr-namespace:System;assembly=mscorlib"
                  xmlns:bv="clr-namespace:BonVision;assembly=BonVision"
                  xmlns:drw="clr-namespace:Bonsai.Vision.Drawing;assembly=Bonsai.Vision"
                  xmlns="https://bonsai-rx.org/2018/workflow">
@@ -137,8 +138,8 @@
                 <gl:CursorVisible>true</gl:CursorVisible>
                 <gl:Location xsi:nil="true" />
                 <gl:WindowBorder>Resizable</gl:WindowBorder>
-                <gl:WindowState>Normal</gl:WindowState>
-                <gl:DisplayDevice>Primary</gl:DisplayDevice>
+                <gl:WindowState>Fullscreen</gl:WindowState>
+                <gl:DisplayDevice>Second</gl:DisplayDevice>
                 <gl:TargetRenderFrequency>60</gl:TargetRenderFrequency>
                 <gl:TargetUpdateFrequency xsi:nil="true" />
                 <gl:RenderState />
@@ -205,7 +206,7 @@
                     <gl:Name>CalibX</gl:Name>
                     <gl:Width xsi:nil="true" />
                     <gl:Height xsi:nil="true" />
-                    <gl:InternalFormat>Rgba16</gl:InternalFormat>
+                    <gl:InternalFormat>R16ui</gl:InternalFormat>
                     <gl:WrapS>Repeat</gl:WrapS>
                     <gl:WrapT>Repeat</gl:WrapT>
                     <gl:MinFilter>Linear</gl:MinFilter>
@@ -215,7 +216,7 @@
                     <gl:Name>CalibY</gl:Name>
                     <gl:Width xsi:nil="true" />
                     <gl:Height xsi:nil="true" />
-                    <gl:InternalFormat>Rgba16</gl:InternalFormat>
+                    <gl:InternalFormat>R16ui</gl:InternalFormat>
                     <gl:WrapS>Repeat</gl:WrapS>
                     <gl:WrapT>Repeat</gl:WrapT>
                     <gl:MinFilter>Linear</gl:MinFilter>
@@ -223,16 +224,6 @@
                   </gl:TextureConfiguration>
                   <gl:TextureConfiguration xsi:type="gl:Texture2D">
                     <gl:Name>Stimuli</gl:Name>
-                    <gl:Width xsi:nil="true" />
-                    <gl:Height xsi:nil="true" />
-                    <gl:InternalFormat>Rgba</gl:InternalFormat>
-                    <gl:WrapS>Repeat</gl:WrapS>
-                    <gl:WrapT>Repeat</gl:WrapT>
-                    <gl:MinFilter>Linear</gl:MinFilter>
-                    <gl:MagFilter>Linear</gl:MagFilter>
-                  </gl:TextureConfiguration>
-                  <gl:TextureConfiguration xsi:type="gl:Texture2D">
-                    <gl:Name>Image</gl:Name>
                     <gl:Width xsi:nil="true" />
                     <gl:Height xsi:nil="true" />
                     <gl:InternalFormat>Rgba</gl:InternalFormat>
@@ -250,20 +241,24 @@
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="gl:RenderFrame" />
             </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>ProjectorSize</Name>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="SubscribeSubject">
+                <Name>ProjectorSize</Name>
+              </Builder>
             </Expression>
-            <Expression xsi:type="PropertyMapping">
-              <PropertyMappings>
-                <Property Name="Right" Selector="Item1" />
-                <Property Name="Top" Selector="Item2" />
-              </PropertyMappings>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="PropertyMapping">
+                <PropertyMappings>
+                  <Property Name="Right" Selector="Item1" />
+                  <Property Name="Top" Selector="Item2" />
+                </PropertyMappings>
+              </Builder>
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.OrthographicView.bonsai">
               <Left>0</Left>
-              <Right>1920</Right>
+              <Right>1</Right>
               <Bottom>0</Bottom>
-              <Top>1080</Top>
+              <Top>1</Top>
             </Expression>
             <Expression xsi:type="rx:PublishSubject">
               <Name>Draw</Name>
@@ -281,6 +276,72 @@
             <Expression xsi:type="rx:AsyncSubject">
               <Name>ShaderName</Name>
             </Expression>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="Combinator">
+                <Combinator xsi:type="gl:Timer">
+                  <gl:DueTime>PT0S</gl:DueTime>
+                  <gl:Period>PT0.1S</gl:Period>
+                </Combinator>
+              </Builder>
+            </Expression>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="Combinator">
+                <Combinator xsi:type="gl:CreateVector2">
+                  <gl:X>1</gl:X>
+                  <gl:Y>1</gl:Y>
+                </Combinator>
+              </Builder>
+            </Expression>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="Combinator">
+                <Combinator xsi:type="gl:UpdateUniform">
+                  <gl:UniformName>resolution</gl:UniformName>
+                  <gl:ShaderName>DmdCalibration</gl:ShaderName>
+                </Combinator>
+              </Builder>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:Timer">
+                <gl:DueTime>PT0S</gl:DueTime>
+                <gl:Period>PT1S</gl:Period>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Mod">
+              <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int64">
+                <Value>4</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="InputMapping">
+              <PropertyMappings>
+                <Property Name="Value" Selector="it" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="IntProperty">
+                <Value>1</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:UpdateUniform">
+                <gl:UniformName>mode</gl:UniformName>
+                <gl:ShaderName>DmdCalibration</gl:ShaderName>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="Combinator">
+                <Combinator xsi:type="IntProperty">
+                  <Value>0</Value>
+                </Combinator>
+              </Builder>
+            </Expression>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="Combinator">
+                <Combinator xsi:type="gl:UpdateUniform">
+                  <gl:UniformName>mode</gl:UniformName>
+                  <gl:ShaderName>DmdCalibration</gl:ShaderName>
+                </Combinator>
+              </Builder>
+            </Expression>
           </Nodes>
           <Edges>
             <Edge From="0" To="1" Label="Source1" />
@@ -293,6 +354,14 @@
             <Edge From="8" To="9" Label="Source1" />
             <Edge From="10" To="11" Label="Source1" />
             <Edge From="11" To="12" Label="Source1" />
+            <Edge From="13" To="14" Label="Source1" />
+            <Edge From="14" To="15" Label="Source1" />
+            <Edge From="16" To="17" Label="Source1" />
+            <Edge From="17" To="18" Label="Source1" />
+            <Edge From="18" To="19" Label="Source1" />
+            <Edge From="19" To="20" Label="Source1" />
+            <Edge From="20" To="21" Label="Source1" />
+            <Edge From="21" To="22" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
@@ -328,15 +397,13 @@
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">
-              <Combinator xsi:type="cv:ConvertColor">
-                <cv:Conversion>Gray2Bgr</cv:Conversion>
-              </Combinator>
+              <Combinator xsi:type="cv:Grayscale" />
             </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="gl:UpdateTexture">
                 <gl:TextureName>CalibX</gl:TextureName>
                 <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                <gl:InternalFormat>Rgba16</gl:InternalFormat>
+                <gl:InternalFormat>R16ui</gl:InternalFormat>
               </Combinator>
             </Expression>
             <Expression xsi:type="SubscribeSubject">
@@ -354,6 +421,9 @@
                 <gl:TextureName>CalibX</gl:TextureName>
                 <gl:TextureTarget>Texture2D</gl:TextureTarget>
               </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:AsyncSubject">
+              <Name>CalibrationX</Name>
             </Expression>
             <Expression xsi:type="SubscribeSubject">
               <Name>ShaderName</Name>
@@ -391,15 +461,13 @@
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">
-              <Combinator xsi:type="cv:ConvertColor">
-                <cv:Conversion>Gray2Bgr</cv:Conversion>
-              </Combinator>
+              <Combinator xsi:type="cv:Grayscale" />
             </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="gl:UpdateTexture">
                 <gl:TextureName>CalibY</gl:TextureName>
                 <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                <gl:InternalFormat>Rgba16</gl:InternalFormat>
+                <gl:InternalFormat>R16ui</gl:InternalFormat>
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">
@@ -409,6 +477,9 @@
                 <gl:TextureName>CalibY</gl:TextureName>
                 <gl:TextureTarget>Texture2D</gl:TextureTarget>
               </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:AsyncSubject">
+              <Name>CalibrationY</Name>
             </Expression>
           </Nodes>
           <Edges>
@@ -420,14 +491,16 @@
             <Edge From="5" To="8" Label="Source1" />
             <Edge From="6" To="7" Label="Source1" />
             <Edge From="7" To="8" Label="Source2" />
-            <Edge From="9" To="10" Label="Source1" />
-            <Edge From="10" To="17" Label="Source2" />
-            <Edge From="11" To="12" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="10" To="11" Label="Source1" />
+            <Edge From="11" To="18" Label="Source2" />
             <Edge From="12" To="13" Label="Source1" />
             <Edge From="13" To="14" Label="Source1" />
             <Edge From="14" To="15" Label="Source1" />
             <Edge From="15" To="16" Label="Source1" />
             <Edge From="16" To="17" Label="Source1" />
+            <Edge From="17" To="18" Label="Source1" />
+            <Edge From="18" To="19" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
@@ -488,8 +561,8 @@
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="gl:Translate">
                       <gl:Order>Prepend</gl:Order>
-                      <gl:X>960</gl:X>
-                      <gl:Y>540</gl:Y>
+                      <gl:X>0.5</gl:X>
+                      <gl:Y>0.5</gl:Y>
                       <gl:Z>0</gl:Z>
                     </Combinator>
                   </Expression>
@@ -509,8 +582,8 @@
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="gl:Scale">
                       <gl:Order>Prepend</gl:Order>
-                      <gl:X>1920</gl:X>
-                      <gl:Y>1080</gl:Y>
+                      <gl:X>1</gl:X>
+                      <gl:Y>1</gl:Y>
                       <gl:Z>1</gl:Z>
                     </Combinator>
                   </Expression>
@@ -541,84 +614,6 @@
                   <Edge From="7" To="8" Label="Source1" />
                   <Edge From="8" To="9" Label="Source2" />
                   <Edge From="9" To="10" Label="Source1" />
-                </Edges>
-              </Workflow>
-            </Expression>
-            <Expression xsi:type="ExternalizedMapping">
-              <Property Name="ScaleX" />
-              <Property Name="ScaleY" />
-              <Property Name="ShiftX" />
-              <Property Name="ShiftY" />
-            </Expression>
-            <Expression xsi:type="GroupWorkflow">
-              <Name>ScaleShift</Name>
-              <Workflow>
-                <Nodes>
-                  <Expression xsi:type="WorkflowInput">
-                    <Name>Source1</Name>
-                  </Expression>
-                  <Expression xsi:type="ExternalizedMapping">
-                    <Property Name="X" DisplayName="ScaleX" Category="Texture Mapping" />
-                    <Property Name="Y" DisplayName="ScaleY" Category="Texture Mapping" />
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="bv:CreateTextureScale">
-                      <bv:X>1</bv:X>
-                      <bv:Y>1</bv:Y>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="ExternalizedMapping">
-                    <Property Name="X" DisplayName="ShiftX" Category="Texture Mapping" />
-                    <Property Name="Y" DisplayName="ShiftY" Category="Texture Mapping" />
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>ShaderName</Name>
-                  </Expression>
-                  <Expression xsi:type="PropertyMapping">
-                    <PropertyMappings>
-                      <Property Name="ShaderName" />
-                    </PropertyMappings>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="gl:UpdateUniform">
-                      <gl:UniformName>scale</gl:UniformName>
-                      <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="bv:CreateTextureShift">
-                      <bv:X>0</bv:X>
-                      <bv:Y>0</bv:Y>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>ShaderName</Name>
-                  </Expression>
-                  <Expression xsi:type="PropertyMapping">
-                    <PropertyMappings>
-                      <Property Name="ShaderName" />
-                    </PropertyMappings>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="gl:UpdateUniform">
-                      <gl:UniformName>shift</gl:UniformName>
-                      <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="WorkflowOutput" />
-                </Nodes>
-                <Edges>
-                  <Edge From="0" To="2" Label="Source1" />
-                  <Edge From="1" To="2" Label="Source2" />
-                  <Edge From="2" To="6" Label="Source1" />
-                  <Edge From="3" To="7" Label="Source2" />
-                  <Edge From="4" To="5" Label="Source1" />
-                  <Edge From="5" To="6" Label="Source2" />
-                  <Edge From="6" To="7" Label="Source1" />
-                  <Edge From="7" To="10" Label="Source1" />
-                  <Edge From="8" To="9" Label="Source1" />
-                  <Edge From="9" To="10" Label="Source2" />
-                  <Edge From="10" To="11" Label="Source1" />
                 </Edges>
               </Workflow>
             </Expression>
@@ -659,10 +654,10 @@
                 <drw:Depth>U8</drw:Depth>
                 <drw:Channels>3</drw:Channels>
                 <drw:Color>
-                  <drw:Val0>0</drw:Val0>
-                  <drw:Val1>0</drw:Val1>
-                  <drw:Val2>0</drw:Val2>
-                  <drw:Val3>0</drw:Val3>
+                  <drw:Val0>128</drw:Val0>
+                  <drw:Val1>128</drw:Val1>
+                  <drw:Val2>128</drw:Val2>
+                  <drw:Val3>255</drw:Val3>
                 </drw:Color>
               </Combinator>
             </Expression>
@@ -670,6 +665,48 @@
               <Combinator xsi:type="drw:Rectangle">
                 <drw:Origin>
                   <drw:X>860</drw:X>
+                  <drw:Y>480</drw:Y>
+                </drw:Origin>
+                <drw:Size>
+                  <drw:Width>200</drw:Width>
+                  <drw:Height>600</drw:Height>
+                </drw:Size>
+                <drw:Color>
+                  <drw:Val0>255</drw:Val0>
+                  <drw:Val1>255</drw:Val1>
+                  <drw:Val2>255</drw:Val2>
+                  <drw:Val3>255</drw:Val3>
+                </drw:Color>
+                <drw:Thickness>-1</drw:Thickness>
+                <drw:LineType>Connected8</drw:LineType>
+                <drw:Shift>0</drw:Shift>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="drw:Rectangle">
+                <drw:Origin>
+                  <drw:X>400</drw:X>
+                  <drw:Y>480</drw:Y>
+                </drw:Origin>
+                <drw:Size>
+                  <drw:Width>200</drw:Width>
+                  <drw:Height>600</drw:Height>
+                </drw:Size>
+                <drw:Color>
+                  <drw:Val0>255</drw:Val0>
+                  <drw:Val1>255</drw:Val1>
+                  <drw:Val2>255</drw:Val2>
+                  <drw:Val3>255</drw:Val3>
+                </drw:Color>
+                <drw:Thickness>-1</drw:Thickness>
+                <drw:LineType>Connected8</drw:LineType>
+                <drw:Shift>0</drw:Shift>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="drw:Rectangle">
+                <drw:Origin>
+                  <drw:X>1200</drw:X>
                   <drw:Y>480</drw:Y>
                 </drw:Origin>
                 <drw:Size>
@@ -700,22 +737,6 @@
                 <gl:InternalFormat>Rgba</gl:InternalFormat>
               </Combinator>
             </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>ShaderName</Name>
-            </Expression>
-            <Expression xsi:type="PropertyMapping">
-              <PropertyMappings>
-                <Property Name="ShaderName" />
-              </PropertyMappings>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="gl:BindTexture">
-                <gl:TextureSlot>Texture0</gl:TextureSlot>
-                <gl:ShaderName>DmdCalibration</gl:ShaderName>
-                <gl:TextureName>Stimuli</gl:TextureName>
-                <gl:TextureTarget>Texture2D</gl:TextureTarget>
-              </Combinator>
-            </Expression>
           </Nodes>
           <Edges>
             <Edge From="0" To="5" Label="Source1" />
@@ -723,22 +744,19 @@
             <Edge From="2" To="3" Label="Source1" />
             <Edge From="3" To="5" Label="Source3" />
             <Edge From="4" To="5" Label="Source2" />
-            <Edge From="5" To="7" Label="Source1" />
-            <Edge From="6" To="7" Label="Source2" />
-            <Edge From="7" To="10" Label="Source1" />
-            <Edge From="8" To="9" Label="Source1" />
-            <Edge From="9" To="10" Label="Source2" />
-            <Edge From="11" To="12" Label="Source1" />
+            <Edge From="5" To="8" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="8" Label="Source2" />
+            <Edge From="9" To="10" Label="Source1" />
+            <Edge From="10" To="11" Label="Source1" />
+            <Edge From="11" To="13" Label="Source2" />
             <Edge From="12" To="13" Label="Source1" />
-            <Edge From="13" To="15" Label="Source2" />
+            <Edge From="13" To="14" Label="Source1" />
             <Edge From="14" To="15" Label="Source1" />
             <Edge From="15" To="16" Label="Source1" />
             <Edge From="16" To="17" Label="Source1" />
             <Edge From="17" To="18" Label="Source1" />
             <Edge From="18" To="19" Label="Source1" />
-            <Edge From="19" To="22" Label="Source1" />
-            <Edge From="20" To="21" Label="Source1" />
-            <Edge From="21" To="22" Label="Source2" />
           </Edges>
         </Workflow>
       </Expression>
